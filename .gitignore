@@ -1,0 +1,29 @@
+*.py[cod]
+
+# C extensions
+*.so
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib64
+__pycache__
+
+# Various common editor backups
+*.orig
+.*.swp
+
+# some mac thing
+.DS_Store
+
+# PyCharm
+.idea
