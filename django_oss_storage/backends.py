@@ -187,6 +187,12 @@ class OssStorage(Storage):
         file_info = self.bucket.head_object(name)
         return file_info.content_type
 
+    def _get_filename(self, filepath):
+        if '/' in filepath:
+            return filepath.rsplit('/', 1)[1]
+        else:
+            return filepath
+
     def listdir(self, name):
         if name == ".":
             name = ""
@@ -202,7 +208,7 @@ class OssStorage(Storage):
             if obj.is_prefix():
                 dirs.append(obj.key)
             else:
-                files.append(obj.key)
+                files.append(self._get_filename(obj.key))
 
         logger().debug("dirs: %s", list(dirs))
         logger().debug("files: %s", files)
@@ -211,7 +217,7 @@ class OssStorage(Storage):
     def url(self, name):
         key = self._get_key_name(name)
         str = self.bucket.sign_url('GET', key, expires=self.expire_time)
-        if self.bucket_acl != BUCKET_ACL_PRIVATE :
+        if self.bucket_acl != BUCKET_ACL_PRIVATE:
             idx = str.find('?')
             if idx > 0: 
                 str = str[:idx].replace('%2F', '/')
