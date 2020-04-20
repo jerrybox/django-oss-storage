@@ -252,8 +252,8 @@ class OssStaticStorage(OssStorage):
 
 class OssPrivateStorage(OssStorage):
     def __init__(self, **kwargs):
-        self.location = kwargs.get('location', settings.MEDIA_URL)
-        private_bucket_name = kwargs.get('bucket_name', _get_config('OSS_PRIVATE_BUCKET_NAME'))
+        self.location = kwargs.pop('location', settings.MEDIA_URL)
+        private_bucket_name = kwargs.pop('bucket_name', _get_config('OSS_PRIVATE_BUCKET_NAME'))
         logger().debug("location: %s", self.location)
         super(OssPrivateStorage, self).__init__(bucket_name=private_bucket_name, **kwargs)
 
