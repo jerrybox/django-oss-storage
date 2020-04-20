@@ -250,6 +250,14 @@ class OssStaticStorage(OssStorage):
         super(OssStaticStorage, self).__init__(**kwargs)
 
 
+class OssPrivateStorage(OssStorage):
+    def __init__(self, **kwargs):
+        self.location = kwargs.get('location', settings.MEDIA_URL)
+        private_bucket_name = kwargs.get('bucket_name', _get_config('OSS_PRIVATE_BUCKET_NAME'))
+        logger().debug("location: %s", self.location)
+        super(OssPrivateStorage, self).__init__(bucket_name=private_bucket_name, **kwargs)
+
+
 class OssFile(File):
     """
     A file returned from AliCloud OSS
