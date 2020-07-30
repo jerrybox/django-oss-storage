@@ -58,16 +58,17 @@ class OssStorage(Storage):
     Aliyun OSS Storage
     """
 
-    def __init__(self, access_key_id=None, access_key_secret=None, end_point=None, bucket_name=None, expire_time=None, **kwargs):
+    def __init__(self, access_key_id=None, access_key_secret=None, end_point=None, bucket_name=None, expire_time=None, is_cname=None, **kwargs):
         self.access_key_id = access_key_id if access_key_id else _get_config('OSS_ACCESS_KEY_ID')
         self.access_key_secret = access_key_secret if access_key_secret else _get_config('OSS_ACCESS_KEY_SECRET')
         self.end_point = _normalize_endpoint(end_point if end_point else _get_config('OSS_ENDPOINT'))
         self.bucket_name = bucket_name if bucket_name else _get_config('OSS_BUCKET_NAME')
         self.expire_time = expire_time if expire_time else int(_get_config('OSS_EXPIRE_TIME', default=60*60*24*30))
+        self.is_cname = is_cname if is_cname else int(_get_config('OSS_IS_CNAME', default=False))
 
         self.auth = Auth(self.access_key_id, self.access_key_secret)
         self.service = Service(self.auth, self.end_point)
-        self.bucket = Bucket(self.auth, self.end_point, self.bucket_name)
+        self.bucket = Bucket(self.auth, self.end_point, self.bucket_name, is_cname=self.is_cname)
 
         # try to get bucket acl to check bucket exist or not
         try:
@@ -216,12 +217,12 @@ class OssStorage(Storage):
 
     def url(self, name):
         key = self._get_key_name(name)
-        str = self.bucket.sign_url('GET', key, expires=self.expire_time)
+        url_str = self.bucket.sign_url('GET', key, expires=self.expire_time)
         if self.bucket_acl != BUCKET_ACL_PRIVATE:
-            idx = str.find('?')
-            if idx > 0: 
-                str = str[:idx].replace('%2F', '/')
-        return str
+            idx = url_str.find('?')
+            if idx > 0:
+                url_str = url_str[:idx]
+        return url_str.replace('%2F', '/')
 
     def delete(self, name):
         name = self._get_key_name(name)
